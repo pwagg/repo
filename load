@@ -1,1 +1,30 @@
+local function downloadFile(path, folder)
+    local fullPath = folder .. '/' .. path
+
+    if not isfile(fullPath) then
+        local suc, res = pcall(function()
+            return game:HttpGet('https://raw.githubusercontent.com/pwagg/repo/refs/heads/main/' .. path)
+        end)
+
+        if not suc or res == '404: Not Found' then
+            error('Failed to download or file not found: ' .. res)
+        end
+
+        writefile(fullPath, res)
+    end
+
+    return readfile(fullPath)
+end
+
+for _, folder in {'pawlua', 'pawlua/libraries', 'pawlua/games'} do
+    if not isfolder(folder) then
+        makefolder(folder)
+    end
+end
+
+for _, file in {'utils/esp.lua', 'utils/lib.lua', 'utils/lib_save.lua', 'utils/lib_theme.lua'} do
+    downloadFile(file, 'pawlua/libraries')
+end
+
+loadstring(downloadFile('games/' .. game.PlaceId .. '.lua', 'pawlua/games'))()
 
